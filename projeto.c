@@ -1,4 +1,5 @@
 #include <GL/glut.h>
+#include <math.h>
 
 int light0Ligado = 1;
 
@@ -54,6 +55,34 @@ void desenharEstante(){
     glVertex3f(x_init, y_init, z_end);
 
     glEnd();
+}
+
+void desenhaCD(){
+  glColor3f(1.0f, 0.0f, 0.0f); // Define a cor preta
+
+  // Desenha o círculo externo do CD
+  glBegin(GL_TRIANGLE_FAN);
+  glVertex3f(0.0f, 0.0f, 0.1f); // Centro do círculo
+  for (float angle = 0.0f; angle <= 360.0f; angle += 1.0f) {
+    float radian = angle * (M_PI / 180.0f);
+    float x = 0.9f * sin(radian);
+    float y = 0.9f * cos(radian);
+    glVertex2f(x, y);
+  }
+  glEnd();
+
+  // Desenha o círculo interno do CD
+  glColor3f(0.0f, 0.0f, 0.0f); // Define a cor branca
+  glBegin(GL_TRIANGLE_FAN);
+  glVertex3f(0.0f, 0.0f, 0.5f); // Centro do círculo
+  for (float angle = 0.0f; angle <= 360.0f; angle += 1.0f) {
+    float radian = angle * (M_PI / 180.0f);
+    float x = 0.4f * sin(radian);
+    float y = 0.4f * cos(radian);
+    glVertex2f(x, y);
+  }
+  glEnd();
+
 }
 
 void desenhar_teclas()
@@ -246,6 +275,12 @@ void renderScene() {
         desenharEstante();
     glPopMatrix();
 
+    glPushMatrix();
+        glScalef(0.25, 0.25, 1.0);
+        glTranslatef(-9.0, 5.0, -3.0);
+        desenhaCD();
+    glPopMatrix();
+
     // Trocar os buffers para exibir a cena renderizada
     glutSwapBuffers();
 }
@@ -331,4 +366,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-
