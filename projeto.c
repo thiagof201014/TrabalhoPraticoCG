@@ -2,6 +2,16 @@
 
 int light0Ligado = 1;
 
+// Ponto central do piano
+float PCpiano_x = 0.0;
+float PCpiano_y = 0.0;
+float PCpiano_z = -1.0;
+
+// Escala do piano
+float Epiano_x = 1.0;
+float Epiano_y = 1.0;
+float Epiano_z = 1.0;
+
 void desenharEstante(){
     float x_init = -1.0, x_end = 0.5, y_init = -1.0, y_end = 1.0, z_init = -1.0, z_end = -0.5;
 
@@ -199,7 +209,6 @@ void desenhar_pes_piano(){
         x_init += 2;
         x_end += 2;
     }
-
 }
 
 void desenhar_piano()
@@ -226,10 +235,12 @@ void renderScene() {
 
     // Desenhar o piano
     glPushMatrix();
-        glTranslatef(0,0,-1);
+        glTranslatef(PCpiano_x, PCpiano_y, PCpiano_z); // Move o piano ao seu ponto central
+        glScalef(Epiano_x, Epiano_y, Epiano_z); // Ajusta a escala do piano
         desenhar_piano();
     glPopMatrix();
 
+    // Desenhar a estante
     glPushMatrix();
         glTranslatef(3, 0, -3);
         desenharEstante();
@@ -269,6 +280,36 @@ void GerenciaTeclado(unsigned char key, int x, int y){
                 glDisable(GL_LIGHT0);
             glutPostRedisplay();
             break;
+        case 'i': // Move o piano para frente
+            PCpiano_z -= 0.1;
+            glutPostRedisplay();
+            break;
+        case 'j': // Move o piano para a esquerda
+            PCpiano_x -= 0.1;
+            glutPostRedisplay();
+            break;
+        case 'k': // Move o piano para tras
+            PCpiano_z += 0.1;
+            glutPostRedisplay();
+            break;
+        case 'l': // Move o piano para a direita
+            PCpiano_x += 0.1;
+            glutPostRedisplay();
+            break;
+        case 'o': // Aumenta o piano
+            Epiano_x += 0.1;
+            Epiano_y += 0.1;
+            Epiano_z += 0.1;
+
+            glutPostRedisplay();
+            break;
+        case 'p': // Diminui o piano
+            Epiano_x -= 0.1;
+            Epiano_y -= 0.1;
+            Epiano_z -= 0.1;
+
+            glutPostRedisplay();
+            break;
     }
 }
 
@@ -277,7 +318,7 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(800, 800);
-    glutCreateWindow("Piano 3D");
+    glutCreateWindow("Loja 3D");
     // Configurar a função de renderização
     glutDisplayFunc(renderScene);
     // Permitir utilização de teclado
