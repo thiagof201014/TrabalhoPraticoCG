@@ -2,6 +2,7 @@
 #include <math.h>
 
 int light0Ligado = 1;
+int animacaoCD = 1;
 
 // Ponto central do piano
 float PCpiano_x = 0.0;
@@ -12,6 +13,9 @@ float PCpiano_z = -1.0;
 float Epiano_x = 1.0;
 float Epiano_y = 1.0;
 float Epiano_z = 1.0;
+
+// Angulo de rotacao do CD
+int rotationCD = 0;
 
 void desenharEstante(){
     float x_init = -1.0, x_end = 0.5, y_init = -1.0, y_end = 1.0, z_init = -1.0, z_end = -0.5;
@@ -74,7 +78,7 @@ void desenhaCD(){
   // Desenha o círculo interno do CD
   glColor3f(0.0f, 0.0f, 0.0f); // Define a cor branca
   glBegin(GL_TRIANGLE_FAN);
-  glVertex3f(0.0f, 0.0f, 0.5f); // Centro do círculo
+  glVertex3f(0.0f, 0.0f, 0.2f); // Centro do círculo
   for (float angle = 0.0f; angle <= 360.0f; angle += 1.0f) {
     float radian = angle * (M_PI / 180.0f);
     float x = 0.4f * sin(radian);
@@ -247,6 +251,8 @@ void desenhar_piano()
     desenhar_pes_piano();
 }
 
+
+
 // Função de renderização
 void renderScene() {
     // Limpar o buffer de cor e o buffer de profundidade
@@ -275,9 +281,11 @@ void renderScene() {
         desenharEstante();
     glPopMatrix();
 
+    // Desenhar o disco
     glPushMatrix();
         glScalef(0.25, 0.25, 1.0);
         glTranslatef(-9.0, 5.0, -3.0);
+        glRotatef(rotationCD, 0.05, 0, 1);
         desenhaCD();
     glPopMatrix();
 
@@ -303,6 +311,21 @@ void init(){
     glLoadIdentity();
     gluPerspective(45.0, 1.0, 0.1, 100.0); // Define a perspectiva de visualização
     glMatrixMode(GL_MODELVIEW);
+}
+
+void cdAnimator(){
+    if(animacaoCD == 1){
+        if(rotationCD < 360){rotationCD += 10;}
+        else {rotationCD = 0;}
+    }
+}
+
+void timer(int){
+    cdAnimator();
+
+    renderScene();
+    glutPostRedisplay();
+    glutTimerFunc(1000/30, timer, 0);
 }
 
 void GerenciaTeclado(unsigned char key, int x, int y){
@@ -348,6 +371,15 @@ void GerenciaTeclado(unsigned char key, int x, int y){
     }
 }
 
+void GerenciaMouse(int botao, int estado, int x, int y){
+    switch(estado){
+        case GLUT_DOWN:
+            if(animacaoCD == 1){animacaoCD = 0;}
+            else {animacaoCD = 1;}
+            break;
+    }
+}
+
 int main(int argc, char** argv) {
     // Inicialização do GLUT
     glutInit(&argc, argv);
@@ -358,9 +390,12 @@ int main(int argc, char** argv) {
     glutDisplayFunc(renderScene);
     // Permitir utilização de teclado
     glutKeyboardFunc(GerenciaTeclado);
+    // Permitir utilização de mouse
+    glutMouseFunc(GerenciaMouse);
     // Configurações iniciais
     init();
-
+    // Permitir utilização de animações
+    glutTimerFunc(0, timer, 0);
     // Loop principal do GLUT
     glutMainLoop();
 
