@@ -1,8 +1,43 @@
 #include <GL/glut.h>
 #include <math.h>
 
+#define checkImageWidth 64
+#define checkImageHeight 64
+static GLubyte checkImage[checkImageHeight][checkImageWidth][4];
+
+#ifdef GL_VERSION_1_1
+    static GLuint texName;
+#endif
+
+void makeCheckImage(void)
+{
+    int i, j, c;
+    for (i = 0; i < checkImageHeight; i++) {
+        for (j = 0; j < checkImageWidth; j++) {
+            c = ((((i&0x8)==0)^((j&0x8))==0))*255;
+            checkImage[i][j][0] = (GLubyte) c;
+            checkImage[i][j][1] = (GLubyte) c;
+            checkImage[i][j][2] = (GLubyte) c;
+            checkImage[i][j][3] = (GLubyte) 255;
+        }
+    }
+}
+
+GLuint texId;
+
+void Texture() {
+    glGenTextures(1, &texId);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, checkImageWidth,
+    checkImageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, checkImage);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
+// Define se a iluminação está ligada ou desligada
 int light0Ligado = 1;
-int animacaoCD = 1;
+// Define se a animação do cd está ligada ou desligada
+int animacaoCD = 0;
 
 // Ponto central do piano
 float PCpiano_x = 0.0;
@@ -16,6 +51,10 @@ float Epiano_z = 1.0;
 
 // Angulo de rotacao do CD
 int rotationCD = 0;
+
+// Parametros para animação das teclas do piano
+int key_pressed[7] = {0, 0, 0, 0, 0, 0, 0};
+float keys_ypositions[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 void desenharEstante(){
     float x_init = -1.0, x_end = 0.5, y_init = -1.0, y_end = 1.0, z_init = -1.0, z_end = -0.5;
@@ -62,7 +101,7 @@ void desenharEstante(){
 }
 
 void desenhaCD(){
-  glColor3f(1.0f, 0.0f, 0.0f); // Define a cor preta
+  glColor3f(1.0f, 0.0f, 0.0f); // Define a cor vermelha
 
   // Desenha o círculo externo do CD
   glBegin(GL_TRIANGLE_FAN);
@@ -94,9 +133,14 @@ void desenhar_teclas()
     float x_init = -1.0, x_end = -0.85, y_init = -0.075, y_end = 0.075, z_init = -1.0, z_end = 0.0, k = 0.2;
     for(int i = 0; i < 14; i++){
         glPushMatrix();
+            // Translação para a animação das teclas
+            if(i < 7){
+                glTranslatef(0, keys_ypositions[i], 0);
+            }
+
             // Desenhar o paralelepípedo
             glBegin(GL_QUADS);
-        // Face frontal
+            // Face frontal
             glColor3f(k, k, k);  // Vermelho
             glVertex3f(x_init, y_init, z_end);
             glVertex3f(x_end, y_init, z_end);
@@ -110,28 +154,28 @@ void desenhar_teclas()
             glVertex3f(x_end, y_end, z_init);
             glVertex3f(x_init, y_end, z_init);
 
-        // Face lateral esquerda
+            // Face lateral esquerda
             glColor3f(k, k, k);
             glVertex3f(x_init, y_init, z_init);
             glVertex3f(x_init, y_init, z_end);
             glVertex3f(x_init, y_end, z_end);
             glVertex3f(x_init, y_end, z_init);
 
-        // Face lateral direita
+            // Face lateral direita
             glColor3f(k, k, k);
             glVertex3f(x_end, y_init, z_init);
             glVertex3f(x_end, y_init, z_end);
             glVertex3f(x_end, y_end, z_end);
             glVertex3f(x_end, y_end, z_init);
 
-        // Face superior
+            // Face superior
             glColor3f(k, k, k);
             glVertex3f(x_init, y_end, z_init);
             glVertex3f(x_end, y_end, z_init);
             glVertex3f(x_end, y_end, z_end);
             glVertex3f(x_init, y_end, z_end);
 
-        // Face inferior
+            // Face inferior
             glColor3f(k, k, k);
             glVertex3f(x_init, y_init, z_init);
             glVertex3f(x_end, y_init, z_init);
@@ -156,45 +200,55 @@ void desenhar_teclas()
 void desenhar_corpo_piano(){
     float x_init = -1.05, x_end = 1.15, y_init = -1.0, y_end = 1.0, z_init = -1.0, z_end = -2.0;
 
+    //Aplica a textura
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texId);
+
     // Desenhar o corpo
     glBegin(GL_QUADS);
 
     // Face traseira
-    glColor3f(0.0, 1.0, 0.0); // Verde
+    glColor3f(0.5, 0.0, 0.0); // Veermelho
+    glTexCoord2f(1.0f, 0.0f);
     glVertex3f(x_init, y_init, z_init);
+    glTexCoord2f(0.0f, 2.0f);
     glVertex3f(x_init, y_end, z_init);
+    glTexCoord2f(0.0f, 1.0f);
     glVertex3f(x_end, y_end, z_init);
+    glTexCoord2f(2.0f, 0.0f);
     glVertex3f(x_end, y_init, z_init);
 
+
     // Face lateral esquerda
-    glColor3f(0.0, 0.0, 1.0); // Azul
+    glColor3f(0.2, 0.2, 0.2); // Preto
     glVertex3f(x_init, y_init, z_init);
     glVertex3f(x_init, y_init, z_end);
     glVertex3f(x_init, y_end, z_end);
     glVertex3f(x_init, y_end, z_init);
 
     // Face lateral direita
-    glColor3f(1.0, 1.0, 0.0); // Amarelo
+    glColor3f(0.2, 0.2, 0.2); // Cinza
     glVertex3f(x_end, y_init, z_end);
     glVertex3f(x_end, y_init, z_init);
     glVertex3f(x_end, y_end, z_init);
     glVertex3f(x_end, y_end, z_end);
 
     // Face superior
-    glColor3f(1.0, 0.0, 1.0); // Magenta
+    glColor3f(0.0, 0.0, 0.0); // Preto
     glVertex3f(x_init, y_end, z_init);
     glVertex3f(x_end, y_end, z_init);
     glVertex3f(x_end, y_end, z_end);
     glVertex3f(x_init, y_end, z_end);
 
     // Face inferior
-    glColor3f(0.0, 1.0, 1.0); // Ciano
+    glColor3f(0.0, 0.0, 0.0); // Preto
     glVertex3f(x_init, y_init, z_init);
     glVertex3f(x_end, y_init, z_init);
     glVertex3f(x_end, y_init, z_end);
     glVertex3f(x_init, y_init, z_end);
 
     glEnd();
+    glDisable(GL_TEXTURE_2D);
 }
 
 void desenhar_pes_piano(){
@@ -250,8 +304,6 @@ void desenhar_piano()
     desenhar_corpo_piano();
     desenhar_pes_piano();
 }
-
-
 
 // Função de renderização
 void renderScene() {
@@ -313,6 +365,7 @@ void init(){
     glMatrixMode(GL_MODELVIEW);
 }
 
+// Função para a animação do cd
 void cdAnimator(){
     if(animacaoCD == 1){
         if(rotationCD < 360){rotationCD += 10;}
@@ -320,16 +373,37 @@ void cdAnimator(){
     }
 }
 
+// Função para a animação das teclas do piano
+void keysAnimator(){
+    float variacao = 0.01;
+    float deslocamento_max = -0.1;
+    for(int i = 0; i < 7; i++){
+        if(key_pressed[i] == 1 && keys_ypositions[i] > deslocamento_max){
+            keys_ypositions[i] -= variacao;
+        }
+        if(keys_ypositions[i] <= deslocamento_max){
+                key_pressed[i] = 0;
+            }
+        if(key_pressed[i] == 0 && keys_ypositions[i] < 0){
+            keys_ypositions[i] += variacao;
+        }
+    }
+}
+
+// Função para animação
 void timer(int){
     cdAnimator();
+    keysAnimator();
 
     renderScene();
     glutPostRedisplay();
     glutTimerFunc(1000/30, timer, 0);
 }
 
+// Função para tratar os inputs do teclado
 void GerenciaTeclado(unsigned char key, int x, int y){
     switch (key) {
+        // ---------- ILUMINAÇÃO ----------
         case 'q':
             light0Ligado = !light0Ligado;
             if (light0Ligado)
@@ -338,6 +412,8 @@ void GerenciaTeclado(unsigned char key, int x, int y){
                 glDisable(GL_LIGHT0);
             glutPostRedisplay();
             break;
+
+        // ---------- TRANSFORMAÇÕES GEOMÉTRICAS NO PIANO ----------
         case 'i': // Move o piano para frente
             PCpiano_z -= 0.1;
             glutPostRedisplay();
@@ -358,19 +434,41 @@ void GerenciaTeclado(unsigned char key, int x, int y){
             Epiano_x += 0.1;
             Epiano_y += 0.1;
             Epiano_z += 0.1;
-
             glutPostRedisplay();
             break;
         case 'p': // Diminui o piano
             Epiano_x -= 0.1;
             Epiano_y -= 0.1;
             Epiano_z -= 0.1;
-
             glutPostRedisplay();
+            break;
+
+        // ---------- Animação das teclas do piano ----------
+        case 'z':
+            key_pressed[0] = 1;
+            break;
+        case 'x':
+            key_pressed[1] = 1;
+            break;
+        case 'c':
+            key_pressed[2] = 1;
+            break;
+        case 'v':
+            key_pressed[3] = 1;
+            break;
+        case 'b':
+            key_pressed[4] = 1;
+            break;
+        case 'n':
+            key_pressed[5] = 1;
+            break;
+        case 'm':
+            key_pressed[6] = 1;
             break;
     }
 }
 
+// Função para tratar os inputs do mouse
 void GerenciaMouse(int botao, int estado, int x, int y){
     switch(estado){
         case GLUT_DOWN:
@@ -396,6 +494,8 @@ int main(int argc, char** argv) {
     init();
     // Permitir utilização de animações
     glutTimerFunc(0, timer, 0);
+    makeCheckImage();
+    Texture();
     // Loop principal do GLUT
     glutMainLoop();
 
