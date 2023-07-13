@@ -1,5 +1,9 @@
 #include <GL/glut.h>
 #include <math.h>
+#include <stdio.h>
+#include <GL/gl.h>
+//#include <SDL2/SDL.h>
+//#include <SDL2/SDL_mixer.h>
 
 #define checkImageWidth 64
 #define checkImageHeight 64
@@ -8,6 +12,29 @@ static GLubyte checkImage[checkImageHeight][checkImageWidth][4];
 #ifdef GL_VERSION_1_1
     static GLuint texName;
 #endif
+
+// Define se a iluminação está ligada ou desligada
+int light0Ligado = 1;
+// Define se a animação do cd está ligada ou desligada
+int animacaoCD = 0;
+
+// Ponto central do piano
+float PCpiano_x = 0.0;
+float PCpiano_y = 0.0;
+float PCpiano_z = -1.0;
+
+// Escala do piano
+float Epiano_x = 1.0;
+float Epiano_y = 1.0;
+float Epiano_z = 1.0;
+
+// Angulo de rotacao do CD
+int rotationCD = 0;
+
+// Parametros para animação das teclas do piano
+int key_pressed[7] = {0, 0, 0, 0, 0, 0, 0};
+float keys_ypositions[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
 
 void makeCheckImage(void)
 {
@@ -33,28 +60,6 @@ void Texture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
-
-// Define se a iluminação está ligada ou desligada
-int light0Ligado = 1;
-// Define se a animação do cd está ligada ou desligada
-int animacaoCD = 0;
-
-// Ponto central do piano
-float PCpiano_x = 0.0;
-float PCpiano_y = 0.0;
-float PCpiano_z = -1.0;
-
-// Escala do piano
-float Epiano_x = 1.0;
-float Epiano_y = 1.0;
-float Epiano_z = 1.0;
-
-// Angulo de rotacao do CD
-int rotationCD = 0;
-
-// Parametros para animação das teclas do piano
-int key_pressed[7] = {0, 0, 0, 0, 0, 0, 0};
-float keys_ypositions[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
 void desenharEstante(){
     float x_init = -1.0, x_end = 0.5, y_init = -1.0, y_end = 1.0, z_init = -1.0, z_end = -0.5;
@@ -101,7 +106,7 @@ void desenharEstante(){
 }
 
 void desenhaCD(){
-  glColor3f(1.0f, 0.0f, 0.0f); // Define a cor vermelha
+  glColor3f(0, 0, 0); // Define a cor vermelha
 
   // Desenha o círculo externo do CD
   glBegin(GL_TRIANGLE_FAN);
@@ -115,7 +120,7 @@ void desenhaCD(){
   glEnd();
 
   // Desenha o círculo interno do CD
-  glColor3f(0.0f, 0.0f, 0.0f); // Define a cor branca
+  glColor3f(1, 1, 1); // Define a cor branca
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0f, 0.0f, 0.2f); // Centro do círculo
   for (float angle = 0.0f; angle <= 360.0f; angle += 1.0f) {
@@ -305,6 +310,31 @@ void desenhar_piano()
     desenhar_pes_piano();
 }
 
+void desenhar_parede_fundo(){
+    glBegin(GL_QUADS);
+
+    glColor3f(0.1, 0.5, 0.1); // Verde
+    glVertex3f(-12, -1, -3.5);
+    glVertex3f(-12, 3, -3.5);
+    glVertex3f(12, 3, -3.5);
+    glVertex3f(12, -1, -3.5);
+
+    glEnd();
+
+}
+
+void desenhar_chao(){
+glBegin(GL_QUADS);
+
+    glColor3f(0.9, 1.0, 0.9); // Verde
+    glVertex3f(-12, -1, -3.5);
+    glVertex3f(-12, -1, 3);
+    glVertex3f(12, -1, 3);
+    glVertex3f(12, -1, -3.5);
+
+    glEnd();
+}
+
 // Função de renderização
 void renderScene() {
     // Limpar o buffer de cor e o buffer de profundidade
@@ -322,14 +352,15 @@ void renderScene() {
 
     // Desenhar o piano
     glPushMatrix();
-        glTranslatef(PCpiano_x, PCpiano_y, PCpiano_z); // Move o piano ao seu ponto central
+        glTranslatef(PCpiano_x-0.5, PCpiano_y, PCpiano_z); // Move o piano ao seu ponto central
         glScalef(Epiano_x, Epiano_y, Epiano_z); // Ajusta a escala do piano
         desenhar_piano();
     glPopMatrix();
 
     // Desenhar a estante
     glPushMatrix();
-        glTranslatef(3, 0, -3);
+        glTranslatef(2.5, 0.52, -2);
+        glScalef(1.25, 1.5, 1);
         desenharEstante();
     glPopMatrix();
 
@@ -340,6 +371,9 @@ void renderScene() {
         glRotatef(rotationCD, 0.05, 0, 1);
         desenhaCD();
     glPopMatrix();
+
+    desenhar_parede_fundo();
+    desenhar_chao();
 
     // Trocar os buffers para exibir a cena renderizada
     glutSwapBuffers();
@@ -445,6 +479,14 @@ void GerenciaTeclado(unsigned char key, int x, int y){
 
         // ---------- Animação das teclas do piano ----------
         case 'z':
+            //Mix_Music* notes[7];
+            //notes[0] = Mix_LoadMUS("do.wav");
+            //Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+            //Mix_PlayMusic(notes[0], -1);
+
+            //Mix_FreeMusic(notes[0]);
+
+
             key_pressed[0] = 1;
             break;
         case 'x':
@@ -472,8 +514,11 @@ void GerenciaTeclado(unsigned char key, int x, int y){
 void GerenciaMouse(int botao, int estado, int x, int y){
     switch(estado){
         case GLUT_DOWN:
-            if(animacaoCD == 1){animacaoCD = 0;}
-            else {animacaoCD = 1;}
+            if(x >= 125 && x <= 175 && y <= 195 && y >= 135)
+            {
+                if(animacaoCD == 1){animacaoCD = 0;}
+                else {animacaoCD = 1;}
+            }
             break;
     }
 }
@@ -496,7 +541,10 @@ int main(int argc, char** argv) {
     glutTimerFunc(0, timer, 0);
     makeCheckImage();
     Texture();
+    //SDL_Init(SDL_INIT_AUDIO);
     // Loop principal do GLUT
+    //Mix_CloseAudio();
+    //SDL_Quit();
     glutMainLoop();
 
     return 0;
