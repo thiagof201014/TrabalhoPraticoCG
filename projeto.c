@@ -105,27 +105,39 @@ void desenharCorpoEstante(){
     glEnd();
 }
 
-void desenharPrateleiraUm(){
-    float x_init = -1.0, x_end = 0.5, y_init = 0.8, y_end = 0.4, z_init = -1.0, z_end = -0.5;
-    glBegin(GL_QUADS);
-        glColor3f(1.0, 0.0, 0.0);
-        glVertex3f(x_init, y_end, z_init);
-        glVertex3f(x_end, y_end, z_init);
-        glVertex3f(x_end, y_end, z_end);
-        glVertex3f(x_init, y_end, z_end);   
-    glEnd(); 
-}
+void desenharPrateleiras(){
+    float x_init = -1.0, x_end = 0.5, y_init = 0.5, y_end = 0.4, z_init = -1.0, z_end = -0.5;
+    ///Desenha duas prateleiras na estante
+    for(int i = 0; i < 2; i++){
+        glPushMatrix();
+            glBegin(GL_QUADS);
+                glColor3f(0.27, 0.29, 0.32);//Cinza
+                //Face superior
+                glVertex3f(x_init, y_end, z_init);
+                glVertex3f(x_end, y_end, z_init);
+                glVertex3f(x_end, y_end, z_end);
+                glVertex3f(x_init, y_end, z_end);   
 
-void desenharPrateleiraDois(){
-    float x_init = -1.0, x_end = 0.5, y_init = -0.1, y_end = -0.4, z_init = -1.0, z_end = -0.5;
-    glBegin(GL_QUADS);
-        glColor3f(1.0, 0.0, 0.0);
-        glVertex3f(x_init, y_end, z_init);
-        glVertex3f(x_end, y_end, z_init);
-        glVertex3f(x_end, y_end, z_end);
-        glVertex3f(x_init, y_end, z_end);    
-    glEnd(); 
-}
+                //Face frontal
+                glColor3f(0.27, 0.29, 0.32);  // Cinza
+                glVertex3f(x_init, y_init, z_end);
+                glVertex3f(x_end, y_init, z_end);
+                glVertex3f(x_end, y_end, z_end);
+                glVertex3f(x_init, y_end, z_end);
+
+                //Face inferior
+                glColor3f(0.27, 0.29, 0.32); //Cinza
+                glVertex3f(x_init, y_init, z_init);
+                glVertex3f(x_end, y_init, z_init);
+                glVertex3f(x_end, y_init, z_end);
+                glVertex3f(x_init, y_init, z_end);
+
+            glEnd(); 
+        glPopMatrix();
+        y_init -= 0.8;
+        y_end -= 0.8;
+    }
+}   
 
 void desenhaCD(){
   glColor3f(0, 0, 0); // Define a cor vermelha
@@ -334,8 +346,7 @@ void desenhar_piano()
 
 void desenhar_Estante(){
     desenharCorpoEstante();
-    desenharPrateleiraUm();
-    desenharPrateleiraDois();
+    desenharPrateleiras();
 }
 
 void desenhar_parede_fundo(){
