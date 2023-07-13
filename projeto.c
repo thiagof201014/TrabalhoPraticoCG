@@ -61,7 +61,7 @@ void Texture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
-void desenharEstante(){
+void desenharCorpoEstante(){
     float x_init = -1.0, x_end = 0.5, y_init = -1.0, y_end = 1.0, z_init = -1.0, z_end = -0.5;
 
     // Desenhar o paralelepípedo
@@ -103,6 +103,28 @@ void desenharEstante(){
     glVertex3f(x_init, y_init, z_end);
 
     glEnd();
+}
+
+void desenharPrateleiraUm(){
+    float x_init = -1.0, x_end = 0.5, y_init = 0.8, y_end = 0.4, z_init = -1.0, z_end = -0.5;
+    glBegin(GL_QUADS);
+        glColor3f(1.0, 0.0, 0.0);
+        glVertex3f(x_init, y_end, z_init);
+        glVertex3f(x_end, y_end, z_init);
+        glVertex3f(x_end, y_end, z_end);
+        glVertex3f(x_init, y_end, z_end);   
+    glEnd(); 
+}
+
+void desenharPrateleiraDois(){
+    float x_init = -1.0, x_end = 0.5, y_init = -0.1, y_end = -0.4, z_init = -1.0, z_end = -0.5;
+    glBegin(GL_QUADS);
+        glColor3f(1.0, 0.0, 0.0);
+        glVertex3f(x_init, y_end, z_init);
+        glVertex3f(x_end, y_end, z_init);
+        glVertex3f(x_end, y_end, z_end);
+        glVertex3f(x_init, y_end, z_end);    
+    glEnd(); 
 }
 
 void desenhaCD(){
@@ -310,6 +332,12 @@ void desenhar_piano()
     desenhar_pes_piano();
 }
 
+void desenhar_Estante(){
+    desenharCorpoEstante();
+    desenharPrateleiraUm();
+    desenharPrateleiraDois();
+}
+
 void desenhar_parede_fundo(){
     glBegin(GL_QUADS);
 
@@ -361,7 +389,7 @@ void renderScene() {
     glPushMatrix();
         glTranslatef(2.5, 0.52, -2);
         glScalef(1.25, 1.5, 1);
-        desenharEstante();
+        desenhar_Estante();
     glPopMatrix();
 
     // Desenhar o disco
