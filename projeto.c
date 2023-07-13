@@ -62,7 +62,7 @@ void Texture() {
 }
 
 void desenharCorpoEstante(){
-    float x_init = -1.0, x_end = 0.5, y_init = -1.0, y_end = 1.0, z_init = -1.0, z_end = -0.5;
+    float x_init = -1.0, x_end = 0.5, y_init = -1.0, y_end = 1.0, z_init = -1, z_end = -0.5;
 
     // Desenhar o paralelepípedo
     glBegin(GL_QUADS);
@@ -109,35 +109,99 @@ void desenharPrateleiras(){
     float x_init = -1.0, x_end = 0.5, y_init = 0.5, y_end = 0.4, z_init = -1.0, z_end = -0.5;
     ///Desenha duas prateleiras na estante
     for(int i = 0; i < 2; i++){
-        glPushMatrix();
-            glBegin(GL_QUADS);
-                glColor3f(0.27, 0.29, 0.32);//Cinza
-                //Face superior
-                glVertex3f(x_init, y_end, z_init);
-                glVertex3f(x_end, y_end, z_init);
-                glVertex3f(x_end, y_end, z_end);
-                glVertex3f(x_init, y_end, z_end);   
+        glBegin(GL_QUADS);
 
-                //Face frontal
-                glColor3f(0.27, 0.29, 0.32);  // Cinza
-                glVertex3f(x_init, y_init, z_end);
-                glVertex3f(x_end, y_init, z_end);
-                glVertex3f(x_end, y_end, z_end);
-                glVertex3f(x_init, y_end, z_end);
+        glColor3f(0.27, 0.29, 0.32);//Cinza
+        //Face superior
+        glVertex3f(x_init, y_end, z_init);
+        glVertex3f(x_end, y_end, z_init);
+        glVertex3f(x_end, y_end, z_end);
+        glVertex3f(x_init, y_end, z_end);
 
-                //Face inferior
-                glColor3f(0.27, 0.29, 0.32); //Cinza
-                glVertex3f(x_init, y_init, z_init);
-                glVertex3f(x_end, y_init, z_init);
-                glVertex3f(x_end, y_init, z_end);
-                glVertex3f(x_init, y_init, z_end);
+        //Face frontal
+        glColor3f(0.27, 0.29, 0.32);  // Cinza
+        glVertex3f(x_init, y_init, z_end);
+        glVertex3f(x_end, y_init, z_end);
+        glVertex3f(x_end, y_end, z_end);
+        glVertex3f(x_init, y_end, z_end);
 
-            glEnd(); 
-        glPopMatrix();
+        //Face inferior
+        glColor3f(0.27, 0.29, 0.32); //Cinza
+        glVertex3f(x_init, y_init, z_init);
+        glVertex3f(x_end, y_init, z_init);
+        glVertex3f(x_end, y_init, z_end);
+        glVertex3f(x_init, y_init, z_end);
+
+        glEnd();
         y_init -= 0.8;
         y_end -= 0.8;
     }
-}   
+}
+
+void desenharObjetosEstante(){
+    float x_init = -0.9;
+    float x_end = -0.8;
+
+    for(int i = 0; i < 8; i++)
+    {
+        // Desenha um dvd
+        glBegin(GL_QUADS);
+
+        // Face frontal
+        glColor3f(0.2, 0.2, 0.2);
+        glVertex3f(x_end, 0, -0.5);
+        glVertex3f(x_init, 0, -0.5);
+        glVertex3f(x_init, 0.3, -0.5);
+        glVertex3f(x_end, 0.3, -0.5);
+
+        // Face direita
+        glColor3f(0.2, 0.2, 0.2);
+        glVertex3f(x_end, 0.3, -0.5);
+        glVertex3f(x_end, 0.3, -1);
+        glVertex3f(x_end, 0, -1);
+        glVertex3f(x_end, 0, -0.5);
+
+        // Face esquerda
+        glColor3f(0.7, 0, 0);
+        glVertex3f(x_init, 0.3, -0.5);
+        glVertex3f(x_init, 0.3, -1);
+        glVertex3f(x_init, 0, -1);
+        glVertex3f(x_init, 0, -0.5);
+
+        // Face superior
+        glColor3f(0.2, 0.2, 0.2);
+        glVertex3f(x_init, 0.3, -0.5);
+        glVertex3f(x_end, 0.3, -0.5);
+        glVertex3f(x_end, 0.3, -1);
+        glVertex3f(x_init, 0.3, -1);
+
+        glEnd();
+
+        if(i % 3 == 0){
+            x_init += 0.2;
+            x_end += 0.2;
+        }
+        else{
+        x_init += 0.11;
+        x_end += 0.11;
+        }
+    }
+}
+
+void desenharEstante(){
+    desenharCorpoEstante();
+    desenharPrateleiras();
+
+    // Desenha os cds nas duas prateleiras
+    glPushMatrix();
+        glTranslatef(0.1, 0.5, 0);
+        desenharObjetosEstante();
+    glPopMatrix();
+    glPushMatrix();
+        glTranslatef(0, -0.3, 0);
+        desenharObjetosEstante();
+    glPopMatrix();
+}
 
 void desenhaCD(){
   glColor3f(0, 0, 0); // Define a cor vermelha
@@ -297,35 +361,35 @@ void desenhar_pes_piano(){
         glBegin(GL_QUADS);
 
         // Face traseira
-        glColor3f(1.0, 1.0, 0.0); // Verde
+        glColor3f(0.7, 0.2, 0.2); // Verde
         glVertex3f(x_init, y_init, z_init);
         glVertex3f(x_init, y_end, z_init);
         glVertex3f(x_end, y_end, z_init);
         glVertex3f(x_end, y_init, z_init);
 
         // Face lateral esquerda
-        glColor3f(0.0, 0.0, 1.0); // Azul
+        glColor3f(0.5, 0.2, 0.2); // Azul
         glVertex3f(x_init, y_init, z_init);
         glVertex3f(x_init, y_init, z_end);
         glVertex3f(x_init, y_end, z_end);
         glVertex3f(x_init, y_end, z_init);
 
         // Face lateral direita
-        glColor3f(1.0, 0.0, 0.0); // Amarelo
+        glColor3f(0.5, 0.2, 0.2); // Amarelo
         glVertex3f(x_end, y_init, z_end);
         glVertex3f(x_end, y_init, z_init);
         glVertex3f(x_end, y_end, z_init);
         glVertex3f(x_end, y_end, z_end);
 
         // Face superior
-        glColor3f(1.0, 0.0, 1.0); // Magenta
+        glColor3f(0.5, 0.2, 0.2); // Magenta
         glVertex3f(x_init, y_end, z_init);
         glVertex3f(x_end, y_end, z_init);
         glVertex3f(x_end, y_end, z_end);
         glVertex3f(x_init, y_end, z_end);
 
         // Face inferior
-        glColor3f(0.0, 1.0, 1.0); // Ciano
+        glColor3f(0.5, 0.2, 0.2); // Ciano
         glVertex3f(x_init, y_init, z_init);
         glVertex3f(x_end, y_init, z_init);
         glVertex3f(x_end, y_init, z_end);
@@ -342,11 +406,6 @@ void desenhar_piano()
     desenhar_teclas();
     desenhar_corpo_piano();
     desenhar_pes_piano();
-}
-
-void desenhar_Estante(){
-    desenharCorpoEstante();
-    desenharPrateleiras();
 }
 
 void desenhar_parede_fundo(){
@@ -400,7 +459,7 @@ void renderScene() {
     glPushMatrix();
         glTranslatef(2.5, 0.52, -2);
         glScalef(1.25, 1.5, 1);
-        desenhar_Estante();
+        desenharEstante();
     glPopMatrix();
 
     // Desenhar o disco
