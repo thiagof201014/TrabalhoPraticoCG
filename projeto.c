@@ -1,10 +1,7 @@
 #include <GL/glut.h>
 #include <math.h>
 #include <stdio.h>
-#include <GL/gl.h>
-//#include <SDL2/SDL.h>
-//#include <SDL2/SDL_mixer.h>
-
+//Define parâmetros da textura
 #define checkImageWidth 64
 #define checkImageHeight 64
 static GLubyte checkImage[checkImageHeight][checkImageWidth][4];
@@ -35,7 +32,7 @@ int rotationCD = 0;
 int key_pressed[7] = {0, 0, 0, 0, 0, 0, 0};
 float keys_ypositions[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-
+// Função que cria uma imagem de xadrez preto e branco na matriz checkImage
 void makeCheckImage(void)
 {
     int i, j, c;
@@ -52,6 +49,7 @@ void makeCheckImage(void)
 
 GLuint texId;
 
+// Função que é responsável por criar a textura utilizando a imagem xadrez criada anteriormente
 void Texture() {
     glGenTextures(1, &texId);
     glBindTexture(GL_TEXTURE_2D, texId);
@@ -61,42 +59,45 @@ void Texture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
+// Função que desenha o corpo da estante
 void desenharCorpoEstante(){
+
+    // Vértices do objeto
     float x_init = -1.0, x_end = 0.5, y_init = -1.0, y_end = 1.0, z_init = -1, z_end = -0.5;
 
     // Desenhar o paralelepípedo
     glBegin(GL_QUADS);
 
     // Face traseira
-    glColor3f(0.15, 0.15, 0.15);
+    glColor3f(0.15, 0.15, 0.15); // Cinza escuro
     glVertex3f(x_init, y_init, z_init);
     glVertex3f(x_init, y_end, z_init);
     glVertex3f(x_end, y_end, z_init);
     glVertex3f(x_end, y_init, z_init);
 
     // Face lateral esquerda
-    glColor3f(0.27, 0.29, 0.32);
+    glColor3f(0.27, 0.29, 0.32); // Cinza claro
     glVertex3f(x_init, y_init, z_init);
     glVertex3f(x_init, y_init, z_end);
     glVertex3f(x_init, y_end, z_end);
     glVertex3f(x_init, y_end, z_init);
 
     // Face lateral direita
-    glColor3f(0.27, 0.29, 0.32);
+    glColor3f(0.27, 0.29, 0.32); // Cinza claro
     glVertex3f(x_end, y_init, z_end);
     glVertex3f(x_end, y_init, z_init);
     glVertex3f(x_end, y_end, z_init);
     glVertex3f(x_end, y_end, z_end);
 
     // Face superior
-    glColor3f(0.27, 0.29, 0.32);
+    glColor3f(0.27, 0.29, 0.32); // Cinza claro
     glVertex3f(x_init, y_end, z_init);
     glVertex3f(x_end, y_end, z_init);
     glVertex3f(x_end, y_end, z_end);
     glVertex3f(x_init, y_end, z_end);
 
     // Face inferior
-    glColor3f(0.27, 0.29, 0.32);
+    glColor3f(0.27, 0.29, 0.32); // Cinza claro
     glVertex3f(x_init, y_init, z_init);
     glVertex3f(x_end, y_init, z_init);
     glVertex3f(x_end, y_init, z_end);
@@ -105,8 +106,11 @@ void desenharCorpoEstante(){
     glEnd();
 }
 
+// Função que desenha as prateleiras da estante
 void desenharPrateleiras(){
+    // Vértices do objeto
     float x_init = -1.0, x_end = 0.5, y_init = 0.5, y_end = 0.4, z_init = -1.0, z_end = -0.5;
+
     ///Desenha duas prateleiras na estante
     for(int i = 0; i < 2; i++){
         glBegin(GL_QUADS);
@@ -133,12 +137,16 @@ void desenharPrateleiras(){
         glVertex3f(x_init, y_init, z_end);
 
         glEnd();
+
+        // Altera a posição da próxima prateleira a ser desenhada
         y_init -= 0.8;
         y_end -= 0.8;
     }
 }
 
+// Função que desenha os objetos na estante
 void desenharObjetosEstante(){
+    // Vértices do objeto
     float x_init = -0.9;
     float x_end = -0.8;
 
@@ -177,17 +185,19 @@ void desenharObjetosEstante(){
 
         glEnd();
 
+        // Adiciona um espaço extra a cada 3 objetos
         if(i % 3 == 0){
             x_init += 0.2;
             x_end += 0.2;
         }
         else{
-        x_init += 0.11;
-        x_end += 0.11;
+            x_init += 0.11;
+            x_end += 0.11;
         }
     }
 }
 
+// Função que une e desenha todas as partes da estante
 void desenharEstante(){
     desenharCorpoEstante();
     desenharPrateleiras();
@@ -203,8 +213,9 @@ void desenharEstante(){
     glPopMatrix();
 }
 
-void desenhaCD(){
-  glColor3f(0, 0, 0); // Define a cor vermelha
+// Função que desenha o disco
+void desenhaDisco(){
+  glColor3f(0, 0, 0); // Preto
 
   // Desenha o círculo externo do CD
   glBegin(GL_TRIANGLE_FAN);
@@ -231,9 +242,13 @@ void desenhaCD(){
 
 }
 
-void desenhar_teclas()
+// Função que desenha as teclas do piano
+void desenhaTeclas()
 {
+    // Vértices do objeto
     float x_init = -1.0, x_end = -0.85, y_init = -0.075, y_end = 0.075, z_init = -1.0, z_end = 0.0, k = 0.2;
+
+    // Desenha as 14 teclas
     for(int i = 0; i < 14; i++){
         glPushMatrix();
             // Translação para a animação das teclas
@@ -244,7 +259,7 @@ void desenhar_teclas()
             // Desenhar o paralelepípedo
             glBegin(GL_QUADS);
             // Face frontal
-            glColor3f(k, k, k);  // Vermelho
+            glColor3f(k, k, k);  
             glVertex3f(x_init, y_init, z_end);
             glVertex3f(x_end, y_init, z_end);
             glVertex3f(x_end, y_end, z_end);
@@ -288,6 +303,7 @@ void desenhar_teclas()
             glEnd();
         glPopMatrix();
 
+        // Altera a cor da próxima tecla a ser desenhada
         if(k < 1.0){
             k += 0.1;
         }
@@ -295,12 +311,15 @@ void desenhar_teclas()
             k = 0;
         }
 
+        // Altera a posição da próxima tecla a ser adicionada
         x_init += 0.15;
         x_end += 0.15;
     }
 }
 
-void desenhar_corpo_piano(){
+// Função que desenha o corpo do piano
+void desenhaCorpoPiano(){
+    // Vértices do objeto
     float x_init = -1.05, x_end = 1.15, y_init = -1.0, y_end = 1.0, z_init = -1.0, z_end = -2.0;
 
     //Aplica a textura
@@ -311,7 +330,7 @@ void desenhar_corpo_piano(){
     glBegin(GL_QUADS);
 
     // Face traseira
-    glColor3f(0.5, 0.0, 0.0); // Veermelho
+    glColor3f(0.5, 0.0, 0.0); // Vermelho
     glTexCoord2f(1.0f, 0.0f);
     glVertex3f(x_init, y_init, z_init);
     glTexCoord2f(0.0f, 2.0f);
@@ -321,9 +340,8 @@ void desenhar_corpo_piano(){
     glTexCoord2f(2.0f, 0.0f);
     glVertex3f(x_end, y_init, z_init);
 
-
     // Face lateral esquerda
-    glColor3f(0.2, 0.2, 0.2); // Preto
+    glColor3f(0.2, 0.2, 0.2); // Cinza
     glVertex3f(x_init, y_init, z_init);
     glVertex3f(x_init, y_init, z_end);
     glVertex3f(x_init, y_end, z_end);
@@ -351,64 +369,72 @@ void desenhar_corpo_piano(){
     glVertex3f(x_init, y_init, z_end);
 
     glEnd();
+    
+    // Desativa a textura
     glDisable(GL_TEXTURE_2D);
 }
 
-void desenhar_pes_piano(){
+// Função que desenha os pés do piano
+void desenhaPesPiano(){
+    // Vértices do objeto
     float x_init = -1.0, x_end = -0.9, y_init = -1.0, y_end = -0.075, z_init = -0.05, z_end = -0.25;
 
+    // Desenha os dois pés do piano
     for(int i = 0; i < 2; i++){
         glBegin(GL_QUADS);
 
         // Face traseira
-        glColor3f(0.7, 0.2, 0.2); // Verde
+        glColor3f(0.7, 0.2, 0.2); 
         glVertex3f(x_init, y_init, z_init);
         glVertex3f(x_init, y_end, z_init);
         glVertex3f(x_end, y_end, z_init);
         glVertex3f(x_end, y_init, z_init);
 
         // Face lateral esquerda
-        glColor3f(0.5, 0.2, 0.2); // Azul
+        glColor3f(0.5, 0.2, 0.2); 
         glVertex3f(x_init, y_init, z_init);
         glVertex3f(x_init, y_init, z_end);
         glVertex3f(x_init, y_end, z_end);
         glVertex3f(x_init, y_end, z_init);
 
         // Face lateral direita
-        glColor3f(0.5, 0.2, 0.2); // Amarelo
+        glColor3f(0.5, 0.2, 0.2); 
         glVertex3f(x_end, y_init, z_end);
         glVertex3f(x_end, y_init, z_init);
         glVertex3f(x_end, y_end, z_init);
         glVertex3f(x_end, y_end, z_end);
 
         // Face superior
-        glColor3f(0.5, 0.2, 0.2); // Magenta
+        glColor3f(0.5, 0.2, 0.2); 
         glVertex3f(x_init, y_end, z_init);
         glVertex3f(x_end, y_end, z_init);
         glVertex3f(x_end, y_end, z_end);
         glVertex3f(x_init, y_end, z_end);
 
         // Face inferior
-        glColor3f(0.5, 0.2, 0.2); // Ciano
+        glColor3f(0.5, 0.2, 0.2); 
         glVertex3f(x_init, y_init, z_init);
         glVertex3f(x_end, y_init, z_init);
         glVertex3f(x_end, y_init, z_end);
         glVertex3f(x_init, y_init, z_end);
         glEnd();
 
+        // Altera a posição do próximo pé a ser desenhado
         x_init += 2;
         x_end += 2;
     }
 }
 
-void desenhar_piano()
+// Função que une e desenha o piano
+void desenhaPiano()
 {
-    desenhar_teclas();
-    desenhar_corpo_piano();
-    desenhar_pes_piano();
+    desenhaTeclas();
+    desenhaCorpoPiano();
+    desenhaPesPiano();
 }
 
-void desenhar_parede_fundo(){
+// Função que desenha a parede de fundo
+void desenhaParedeFundo(){
     glBegin(GL_QUADS);
 
     glColor3f(0.1, 0.5, 0.1); // Verde
@@ -421,10 +447,11 @@ void desenhar_parede_fundo(){
 
 }
 
-void desenhar_chao(){
+// Função que desenha o chao 
+void desenhaChao(){
 glBegin(GL_QUADS);
 
-    glColor3f(0.9, 1.0, 0.9); // Verde
+    glColor3f(0.9, 1.0, 0.9); // Bege
     glVertex3f(-12, -1, -3.5);
     glVertex3f(-12, -1, 3);
     glVertex3f(12, -1, 3);
@@ -452,7 +479,7 @@ void renderScene() {
     glPushMatrix();
         glTranslatef(PCpiano_x-0.5, PCpiano_y, PCpiano_z); // Move o piano ao seu ponto central
         glScalef(Epiano_x, Epiano_y, Epiano_z); // Ajusta a escala do piano
-        desenhar_piano();
+        desenhaPiano();
     glPopMatrix();
 
     // Desenhar a estante
@@ -467,11 +494,11 @@ void renderScene() {
         glScalef(0.25, 0.25, 1.0);
         glTranslatef(-9.0, 5.0, -3.0);
         glRotatef(rotationCD, 0.05, 0, 1);
-        desenhaCD();
+        desenhaDisco();
     glPopMatrix();
 
-    desenhar_parede_fundo();
-    desenhar_chao();
+    desenhaParedeFundo();
+    desenhaChao();
 
     // Trocar os buffers para exibir a cena renderizada
     glutSwapBuffers();
@@ -482,10 +509,11 @@ void init(){
     glClearColor(0.5, 0.5, 0.5, 0.0); // Define a cor de fundo para cinza
     glEnable(GL_DEPTH_TEST);          // Habilita o teste de profundidade
 
+    // Habilita a iluminação
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    // Define as propriedades da primeira fonte de luz (GL_LIGHT0)
+    // Define as propriedades da fonte de luz (GL_LIGHT0)
     GLfloat light0Position[] = {2.0, 2.0, 2.0, 0.0};   // Posição da luz
     GLfloat light0Diffuse[] = {1.0, 1.0, 1.0, 1.0};    // Cor difusa da luz
     glLightfv(GL_LIGHT0, GL_POSITION, light0Position);
@@ -507,15 +535,20 @@ void cdAnimator(){
 
 // Função para a animação das teclas do piano
 void keysAnimator(){
+    // Variação no eixo y a cada frame
     float variacao = 0.01;
+    // Deslocamento máximo da tecla
     float deslocamento_max = -0.1;
     for(int i = 0; i < 7; i++){
+        // Movimento vertical descendente
         if(key_pressed[i] == 1 && keys_ypositions[i] > deslocamento_max){
             keys_ypositions[i] -= variacao;
         }
+        // Altera a flag de movimento
         if(keys_ypositions[i] <= deslocamento_max){
                 key_pressed[i] = 0;
-            }
+        }
+        // Movimento vertical ascendente 
         if(key_pressed[i] == 0 && keys_ypositions[i] < 0){
             keys_ypositions[i] += variacao;
         }
@@ -527,7 +560,6 @@ void timer(int){
     cdAnimator();
     keysAnimator();
 
-    renderScene();
     glutPostRedisplay();
     glutTimerFunc(1000/30, timer, 0);
 }
@@ -577,14 +609,6 @@ void GerenciaTeclado(unsigned char key, int x, int y){
 
         // ---------- Animação das teclas do piano ----------
         case 'z':
-            //Mix_Music* notes[7];
-            //notes[0] = Mix_LoadMUS("do.wav");
-            //Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-            //Mix_PlayMusic(notes[0], -1);
-
-            //Mix_FreeMusic(notes[0]);
-
-
             key_pressed[0] = 1;
             break;
         case 'x':
@@ -612,10 +636,11 @@ void GerenciaTeclado(unsigned char key, int x, int y){
 void GerenciaMouse(int botao, int estado, int x, int y){
     switch(estado){
         case GLUT_DOWN:
+            // Checa se o clique do mouse corresponde a posição do disco
             if(x >= 125 && x <= 175 && y <= 195 && y >= 135)
             {
-                if(animacaoCD == 1){animacaoCD = 0;}
-                else {animacaoCD = 1;}
+                if(animacaoCD == 1){animacaoCD = 0;} // Desativa a animação do disco
+                else {animacaoCD = 1;} // Ativa a animação do disco
             }
             break;
     }
@@ -626,7 +651,7 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(800, 800);
-    glutCreateWindow("Loja 3D");
+    glutCreateWindow("Loja de Instrumentos");
     // Configurar a função de renderização
     glutDisplayFunc(renderScene);
     // Permitir utilização de teclado
@@ -637,12 +662,10 @@ int main(int argc, char** argv) {
     init();
     // Permitir utilização de animações
     glutTimerFunc(0, timer, 0);
+    // Criam a textura
     makeCheckImage();
     Texture();
-    //SDL_Init(SDL_INIT_AUDIO);
-    // Loop principal do GLUT
-    //Mix_CloseAudio();
-    //SDL_Quit();
+    // Loop principal
     glutMainLoop();
 
     return 0;
